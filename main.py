@@ -10,7 +10,6 @@ import airboxsim as ui
 
 import configparser
 
-
 # default logging output
 log = logging.getLogger('main')
 
@@ -18,8 +17,8 @@ log = logging.getLogger('main')
 mqtt_log = logging.getLogger('mqtt')
 mqtt_log.setLevel(logging.WARNING)
 
-
-mqtt_rc_codes = ['Success', 'Incorrect protocol version', 'Invalid client identifier', 'Server unavailable', 'Bad username or password', 'Not authorized']
+mqtt_rc_codes = ['Success', 'Incorrect protocol version', 'Invalid client identifier', 'Server unavailable',
+                 'Bad username or password', 'Not authorized']
 
 config = configparser.RawConfigParser()
 config.read('example.cfg')
@@ -49,6 +48,7 @@ else:
 with open('example.cfg', 'w') as configfile:
     config.write(configfile)
 
+
 class Main(QMainWindow, ui.Ui_MainWindow):
     def __init__(self):
         super().__init__()
@@ -64,25 +64,42 @@ class Main(QMainWindow, ui.Ui_MainWindow):
         self.console_timer.timeout.connect(self._poll_console_queue)
         self.console_timer.start(50)  # units are milliseconds
 
+
+
         self.MQTTser_input_2.setText("103.29.70.99")
         self.BoxMAC_input_2.setText(config.get('Section1', 'MAC', raw=False))
         self.BoxMAC_value_2.setText(config.get('Section1', 'MAC', raw=False))
         self.srReadMode_input_2.setText(config.get('Section1', 'srreadmode', raw=False))
         self.idNum_input_2.setText(config.get('Section1', 'idnum', raw=False))
         self.Temp_input_2.setText(config.get('Section1', 'Temp', raw=False))
+        self.Temp_input_3.setText("25")
+        self.Temp_input_4.setText("0")
         self.RH_input_2.setText(config.get('Section1', 'rh', raw=False))
+        self.RH_input_3.setText("70")
+        self.RH_input_4.setText("0")
         self.PM2p5_input_2.setText(config.get('Section1', 'pm2.5', raw=False))
+        self.PM2p5_input_3.setText("1000")
+        self.PM2p5_input_4.setText("0")
         self.PM10_input_2.setText(config.get('Section1', 'pm10', raw=False))
+        self.PM10_input_3.setText("1000")
+        self.PM10_input_4.setText("0")
         self.O3_input_2.setText(config.get('Section1', 'o3', raw=False))
+        self.O3_input_3.setText("0.02")
+        self.O3_input_4.setText("0")
         self.CO_input_2.setText(config.get('Section1', 'co', raw=False))
+        self.CO_input_3.setText("0")
+        self.CO_input_4.setText("0")
         self.CO2_input_2.setText(config.get('Section1', 'co2', raw=False))
+        self.CO2_input_3.setText("300")
+        self.CO2_input_4.setText("0")
         self.TVOC_input_2.setText(config.get('Section1', 'tvoc', raw=False))
+        self.TVOC_input_3.setText("1000")
+        self.TVOC_input_4.setText("0")
         self.CH2O_input_2.setText(config.get('Section1', 'hcho', raw=False))
-
+        self.CH2O_input_3.setText("0.101")
+        self.CH2O_input_4.setText("0")
 
         return
-
-
 
     # 當地端程式連線伺服器得到回應時，要做的動作
     ################################################################
@@ -104,11 +121,12 @@ class Main(QMainWindow, ui.Ui_MainWindow):
         client.subscribe("#")
         self.show_status("Connected.")
 
-
         # self.set_connected_state(True)
         return
+
     def show_status(self, string):
         self.statusbar.showMessage(string)
+
     # 當接收到從伺服器發送的訊息時要進行的動作
     def on_message(self, client, userdata, msg):
 
@@ -116,7 +134,6 @@ class Main(QMainWindow, ui.Ui_MainWindow):
         # print(msg.topic + " " + msg.payload.decode('utf-8'))
         self.write("{%s} %s" % (msg.topic, msg.payload))
         return
-
 
     # --- logging to screen -------------------------------------------------------------
     def enable_console_logging(self):
@@ -144,9 +161,6 @@ class Main(QMainWindow, ui.Ui_MainWindow):
         if self._handler is not None:
             logging.getLogger().removeHandler(self._handler)
             self._handler = None
-
-
-
 
     def connectBnonClick(self):
         print("Hello")
@@ -178,20 +192,131 @@ class Main(QMainWindow, ui.Ui_MainWindow):
         return
 
     def setValueBnOnClick(self):
-        print("Hello2")
+
+        pCMD=0
+        psrReadMode= self.srReadMode_input_2.text()
+        pIdNum=self.idNum_input_2.text()
+        pTemp=self.Temp_input_2.text()
+        pRH=self.RH_input_2.text()
+        pPM2p5=self.PM2p5_input_2.text()
+        pPM10=self.PM10_input_2.text()
+        pO3=self.O3_input_2.text()
+        pCO=self.CO_input_2.text()
+        pCO2=self.CO2_input_2.text()
+        pTVOC=self.TVOC_input_2.text()
+        pCH2O=self.CH2O_input_2.text()
+        pNO2=self.NO2_input_2.text()
+
 
         if self.client.is_connected():
-            self.client.publish("Sam_Test", "Sam_Hello")
+            pubTopic = self.BoxMAC_value_2.text() + "_DEV"
+            pubPayload = '"CMD": {CMD}, "srReadMode":{srReadMode}, "IdNum":{IdNum}, "Temp":{Temp}, "RH":{RH}, ' \
+                '"PM2p5":{PM2p5},"PM10":{PM10},"O3":{O3},"CO":{CO},"CO2":{CO2},"TVOC":{TVOC},"CH2O":{' \
+                'CH2O},"NO2":{NO2}'.format(CMD=pCMD, srReadMode=psrReadMode, IdNum=pIdNum, Temp=pTemp, RH=pRH,
+                                           PM2p5=pPM2p5, PM10=pPM10, O3=pO3, CO=pCO, CO2=pCO2, TVOC=pTVOC, CH2O=pCH2O,
+                                           NO2=pNO2)
+            # pubPayload='"CMD": {CMD}'.format(CMD=0)
+            pubPayload= '{' + pubPayload + '}'
+            print(pubPayload)
+            self.client.publish(pubTopic, pubPayload)
         else:
             self.window.write("Not connected.")
 
-            {A8: 03: 2
-            A: 57:0
-            C: CC_DEV} b'{"CMD":0,"srReadMode":1,"IdNum":19616,"Temp":-5535,"RH":60001,"PM2p5":3,"PM10":3,"O3":0.01,"CO":0,"CO2":803,"TVOC":867,"CH2O":0.507,"NO2":65535}
+        pIdNum = str(int(pIdNum) + 1)
+        self.idNum_input_2.setText(pIdNum)
+        config.set('Section1', 'idnum', pIdNum)
+
+        #Temp
+
+        addValue = float(self.Temp_input_4.text())
+        if addValue > 0:
+            pTemp = round(float(pTemp) + addValue, 2)
+            if pTemp > float(self.Temp_input_3.text()):
+                pTemp = round(float(pTemp) - addValue, 2)
+
+        else:
+            pTemp = round(float(pTemp) + addValue, 2)
+            if pTemp < float(self.Temp_input_3.text()):
+                pTemp = round(float(pTemp) - addValue, 2)
+
+        pTemp = str(pTemp)
+        self.Temp_input_2.setText(pTemp)
+        config.set('Section1', 'temp', pTemp)
+
+        # RH
+
+        addValue = int(self.RH_input_4.text())
+        if addValue > 0:
+            pRH = int(float(pRH)) + addValue
+            if pRH > int(self.RH_input_3.text()):
+                pRH = int(pRH) - addValue
+
+        else:
+            pRH = int(float(pRH)) + addValue
+            if pRH < int(self.RH_input_3.text()):
+                pRH = int(pRH) - addValue
+
+        pRH = str(pRH)
+        self.RH_input_2.setText(pRH)
+        config.set('Section1', 'RH', pRH)
+
+        # PM2p5
+
+        addValue = int(self.PM2p5_input_4.text())
+        if addValue > 0:
+            pPM2p5 = int(float(pPM2p5)) + addValue
+            if pPM2p5 > int(self.PM2p5_input_3.text()):
+                pPM2p5 = int(pPM2p5) - addValue
+
+        else:
+            pPM2p5 = int(float(pPM2p5)) + addValue
+            if pPM2p5 < int(self.PM2p5_input_3.text()):
+                pPM2p5 = int(pPM2p5) - addValue
+
+        pPM2p5 = str(pPM2p5)
+        self.PM2p5_input_2.setText(pPM2p5)
+        config.set('Section1', 'PM2.5', pPM2p5)
+
+        # PM10
+
+        addValue = int(self.PM10_input_4.text())
+        if addValue > 0:
+            pPM10 = int(float(pPM10)) + addValue
+            if pPM10 > int(self.PM10_input_3.text()):
+                pPM10 = int(pPM10) - addValue
+
+        else:
+            pPM10 = int(float(pPM10)) + addValue
+            if pPM10 < int(self.PM10_input_3.text()):
+                pPM10 = int(pPM10) - addValue
+
+        pPM10 = str(pPM10)
+        self.PM10_input_2.setText(pPM10)
+        config.set('Section1', 'PM10', pPM10)
+
+        # O3
+
+        addValue = float(self.O3_input_4.text())
+        if addValue > 0:
+            pO3 = round(float(pO3) + addValue, 2)
+            if pO3 > float(self.O3_input_3.text()):
+                pO3 = round(float(pO3) - addValue, 2)
+
+        else:
+            pO3 = round(float(pO3) + addValue, 2)
+            if pO3 < float(self.O3_input_3.text()):
+                pO3 = round(float(pO3) - addValue, 2)
+
+        pO3 = str(pO3)
+        self.O3_input_2.setText(pO3)
+        config.set('Section1', 'O3', pO3)
+
+
+        with open('example.cfg', 'w') as configfile:
+            config.write(configfile)
+
+            # {A8:03:2A:57:0C:CC_DEV} b'{"CMD":0,"srReadMode":1,"IdNum":19616,"Temp":-5535,"RH":60001,"PM2p5":3,"PM10":3,"O3":0.01,"CO":0,"CO2":803,"TVOC":867,"CH2O":0.507,"NO2":65535}
         return
-
-
-
 
     def _poll_console_queue(self):
         """Write any queued console text to the console text area from the main thread."""
@@ -201,6 +326,7 @@ class Main(QMainWindow, ui.Ui_MainWindow):
             if stripped != "":
                 self.consoleOutput.appendPlainText(stripped)
         return
+
 
 if __name__ == '__main__':
     import sys
