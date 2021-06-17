@@ -55,6 +55,8 @@ class Main(QMainWindow, ui.Ui_MainWindow):
         self.setupUi(self)
         self.connectBn.clicked.connect(self.connectBnonClick)
         self.disconnectBn.clicked.connect(self.disconnectBnonClick)
+        self.AutoBn.clicked.connect(self.AutoBnonClick)
+        self.AutoCloseBn.clicked.connect(self.AutoCloseBnonClick)
         self.setValueBn.clicked.connect(self.setValueBnOnClick)
         self.console_queue = queue.Queue()
         self._handler = None
@@ -64,6 +66,8 @@ class Main(QMainWindow, ui.Ui_MainWindow):
         self.console_timer.timeout.connect(self._poll_console_queue)
         self.console_timer.start(50)  # units are milliseconds
 
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.setValueBnOnClick) #當時間到時會執行 run
 
 
         self.MQTTser_input_2.setText("103.29.70.99")
@@ -190,6 +194,18 @@ class Main(QMainWindow, ui.Ui_MainWindow):
 
         self.client.disconnect()
         return
+
+    def AutoBnonClick(self):
+
+        self.timer.start(int(self.timerinv.text())*1000)
+        return
+
+
+    def AutoCloseBnonClick(self):
+
+        self.timer.stop()
+        return
+
 
     def setValueBnOnClick(self):
 
