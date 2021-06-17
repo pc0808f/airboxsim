@@ -216,6 +216,17 @@ class Main(QMainWindow, ui.Ui_MainWindow):
                                            PM2p5=pPM2p5, PM10=pPM10, O3=pO3, CO=pCO, CO2=pCO2, TVOC=pTVOC, CH2O=pCH2O,
                                            NO2=pNO2)
             # pubPayload='"CMD": {CMD}'.format(CMD=0)
+            self.Temp_value_2.setText(pTemp)
+            self.RH_value_2.setText(pRH)
+            self.PM2p5_value_2.setText(pPM2p5)
+            self.PM10_value_2.setText(pPM10)
+            self.O3_value_2.setText(pO3)
+            self.CO_value_2.setText(pCO)
+            self.CO2_value_2.setText(pCO2)
+            self.TVOC_value_2.setText(pTVOC)
+            self.CH2O_value_2.setText(pCH2O)
+            self.NO2_value_2.setText(pNO2)
+
             pubPayload= '{' + pubPayload + '}'
             print(pubPayload)
             self.client.publish(pubTopic, pubPayload)
@@ -311,6 +322,73 @@ class Main(QMainWindow, ui.Ui_MainWindow):
         self.O3_input_2.setText(pO3)
         config.set('Section1', 'O3', pO3)
 
+        # CO
+
+        addValue = int(self.CO_input_4.text())
+        if addValue > 0:
+            pCO = int(float(pCO)) + addValue
+            if pCO > int(self.CO_input_3.text()):
+                pCO = int(pCO) - addValue
+
+        else:
+            pCO = int(float(pCO)) + addValue
+            if pCO < int(self.CO_input_3.text()):
+                pCO = int(pCO) - addValue
+
+        pCO = str(pCO)
+        self.CO_input_2.setText(pCO)
+        config.set('Section1', 'CO', pCO)
+
+        # CO2
+
+        addValue = int(self.CO2_input_4.text())
+        if addValue > 0:
+            pCO2 = int(float(pCO2)) + addValue
+            if pCO2 > int(self.CO2_input_3.text()):
+                pCO2 = int(pCO2) - addValue
+
+        else:
+            pCO2 = int(float(pCO2)) + addValue
+            if pCO2 < int(self.CO2_input_3.text()):
+                pCO2 = int(pCO2) - addValue
+
+        pCO2 = str(pCO2)
+        self.CO2_input_2.setText(pCO2)
+        config.set('Section1', 'CO2', pCO2)
+
+        # TVOC
+
+        addValue = int(self.TVOC_input_4.text())
+        if addValue > 0:
+            pTVOC = int(float(pTVOC)) + addValue
+            if pTVOC > int(self.TVOC_input_3.text()):
+                pTVOC = int(pTVOC) - addValue
+
+        else:
+            pTVOC = int(float(pTVOC)) + addValue
+            if pTVOC < int(self.TVOC_input_3.text()):
+                pTVOC = int(pTVOC) - addValue
+
+        pTVOC = str(pTVOC)
+        self.TVOC_input_2.setText(pTVOC)
+        config.set('Section1', 'CO2', pTVOC)
+
+        # CH2O
+
+        addValue = float(self.CH2O_input_4.text())
+        if addValue > 0:
+            pCH2O = round(float(pCH2O) + addValue, 3)
+            if pCH2O > float(self.CH2O_input_3.text()):
+                pCH2O = round(float(pCH2O) - addValue, 3)
+
+        else:
+            pCH2O = round(float(pCH2O) + addValue, 3)
+            if pCH2O < float(self.CH2O_input_3.text()):
+                pCH2O = round(float(pCH2O) - addValue, 3)
+
+        pCH2O = str(pCH2O)
+        self.CH2O_input_2.setText(pCH2O)
+        config.set('Section1', 'O3', pCH2O)
 
         with open('example.cfg', 'w') as configfile:
             config.write(configfile)
